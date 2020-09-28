@@ -40,8 +40,7 @@ classdef KinovaGen3 < handle
 
             
             % Incorporate offsets
-            
-            
+                        
             % Incorporate joint limits
             
             self.model = SerialLink(L,'name',name);

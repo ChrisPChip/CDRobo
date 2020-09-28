@@ -31,13 +31,13 @@ classdef KinovaGen3 < handle
             % THETA, D, A, ALPHA
 % ROBOT BASE IS L(0)
 %             L(0) = Link('alpha', 0, 'a', 0, 'd', 0.1564, 'offset', -pi/2);
-            L(1) = Link('alpha', 0, 'a', 0, 'd', 0.1284);
-            L(2) = Link('alpha', 0, 'a', 0, 'd', 0.2104);
-            L(3) = Link('alpha', pi/2, 'a', 0, 'd', 0.2104);
-            L(4) = Link('alpha', 0, 'a', 0, 'd', 0.2084);
-            L(5) = Link('alpha', pi/3, 'a', 0, 'd', 0.1059);
-            L(6) = Link('alpha', pi, 'a', 0, 'd', 0.1059);
-            L(7) = Link('alpha', pi, 'a', 0, 'd', 0.0615);
+    L1 = Link('d',0.2848,'a',0,'alpha',-pi/2,'offset',0,'qlim',[deg2rad(-360),deg2rad(360)]);
+    L2 = Link('d',0.0054,'a',0.41,'alpha',-pi,'offset',-pi/2,'qlim',[deg2rad(-90),deg2rad(90)]);
+    L3 = Link('d',0.0064,'a',0.2084,'alpha',pi,'offset',0,'qlim',[deg2rad(-170),deg2rad(170)]);
+    L4 = Link('d',0.0,'a',0,'alpha',-pi/2,'offset',-pi/2,'qlim',[deg2rad(-360),deg2rad(360)]);
+    L5 = Link('d',0.1059+.1059,'a',0,'alpha',-pi/2,'offset',0,'qlim',[deg2rad(-360),deg2rad(360)]);
+    L6 = Link('d',0,'a',0,'alpha',0,'offset',0,'qlim',[deg2rad(-360),deg2rad(360)]);
+
             
             % Incorporate offsets
             
@@ -57,9 +57,9 @@ classdef KinovaGen3 < handle
         function PlotAndColourRobot(self)%robot,workspace)
             for linkIndex = 0:self.model.n
                 if self.useGripper && linkIndex == self.model.n
-                    [ faceData, vertexData, plyData{linkIndex+1} ] = plyread(['LinUR5Link',num2str(linkIndex),'Gripper.ply'],'tri'); %#ok<AGROW>
+                    [ faceData, vertexData, plyData{linkIndex+1} ] = plyread(['kinova3link',num2str(linkIndex),'Gripper.ply'],'tri'); %#ok<AGROW>
                 else
-                    [ faceData, vertexData, plyData{linkIndex+1} ] = plyread(['LinUR5Link',num2str(linkIndex),'.ply'],'tri'); %#ok<AGROW>
+                    [ faceData, vertexData, plyData{linkIndex+1} ] = plyread(['kinova3link',num2str(linkIndex),'.ply'],'tri'); %#ok<AGROW>
                 end
                 self.model.faces{linkIndex+1} = faceData;
                 self.model.points{linkIndex+1} = vertexData;

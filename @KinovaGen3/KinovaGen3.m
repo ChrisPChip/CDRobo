@@ -20,7 +20,7 @@ classdef KinovaGen3 < handle
         end
         
         %% GetUR5Robot
-        % Given a name (optional), create and return a UR5 robot model
+        % Given a name (optional)
         function GetKinovaRobot(self)
             %     if nargin < 1
             % Create a unique name (ms timestamp after 1ms pause)

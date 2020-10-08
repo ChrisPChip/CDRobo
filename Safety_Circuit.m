@@ -1,61 +1,47 @@
 classdef Safety_Circuit < handle
     
-    properties
-        % Default values for the safety circuit
+    properties (Access = public)
+        %% Default values for the safety circuit
+        % Overall State of the safety circuit
+        Safety_State;
+        
+    end
+    properties (Access = private)
         % ESTOP true indicates normally closed contact - false signal will
         % signify that it has been pressed
+        estop_;
         % Reset true indicates a normally opened RESET pushbutton contact
-        System_Estop;
-        System_Reset;
-        System_Safety;
+        reset_;
+        
     end
     
     %% Static Methods
     methods (Static)
         
         function startupSafety()
-            setEstopState = false;
-            setResetState = false;
+            reset_ = false;
+            estop_ = false;
         end
         
-        function checkSafetyStatus(System_Estop, System_Reset)
-            while (System_Estop == true && System_Reset == false)
-                if System_Reset == true
-                    setEstopState(true);
-                    setResetState(true);
-                    System_Safety = true;
-                else
-                    System_Safety = false;
-                end
-            end
-            
-            while (System_Estop == false && System_Reset == false)
-                if System_Reset == true
-                    setEstopState(true);
-                    setResetState(true);
-                    System_Safety = true;
-                else
-                    System_Safety = false;
-                end
+        function setEstop()
+            estop_ = false;
+        end
+        
+        function setReset()
+            reset_ = true;
+            estop_ = true;
+        end
+        
+        function [state] = checkState()
+            if ~estop_
+                reset_ = false;
+                state = false;
+            elseif ~estop_ && reset_
+                state = false;
+            elseif estop_ && reset_
+                state = true;
             end
         end
         
-        %% Non Static Methods
-        
-        function setEstopState(state)
-            if state == true
-                System_Estop = true;
-            elseif state == false
-                System_Estop = false;
-            end
-        end
-        
-        function setResetState(state)
-            if state == true
-                System_Reset = true;
-            elseif state == false
-                System_Reset = false;
-            end
-        end
     end
 end

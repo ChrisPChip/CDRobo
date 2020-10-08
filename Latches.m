@@ -1,23 +1,23 @@
 classdef Latches < handle
     
-    properties
-        rLatch;
+    properties (Access = public)
+        runLatch;
     end
     
     methods (Static)
         
         function startupLatches
-            rLatch = false;
+            runLatch = false;
         end
         
         
-        function rLatch = setRunLatch()
-             rLatch = true;
-             while rLatch == true
+        function runLatch = setRunLatch()
+            runLatch = true;
+            while runLatch == true
                 for i = 1:20
                     disp(i);
                 end
-             end
+            end
         end
     end
 end

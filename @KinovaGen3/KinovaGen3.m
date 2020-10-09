@@ -4,7 +4,7 @@ classdef KinovaGen3 < handle
         model;
         
         %>
-        workspace = [-2 2 -2 2 0 2];
+        workspace = [-1 1 -1 1 0 3];
         
         %> Flag to indicate if gripper is used
         useGripper = false;
@@ -47,7 +47,7 @@ classdef KinovaGen3 < handle
             self.model = SerialLink(L,'name',name);
             
             % Rotate robot to the correct orientation
-            self.model.base = self.model.base;
+            self.model.base = self.model.base * transl(0, 3, 1);
             
             self.model.plot(zeros(1, self.model.n), 'workspace', self.workspace, 'scale', 0.1);
         end

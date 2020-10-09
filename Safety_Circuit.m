@@ -1,45 +1,42 @@
 classdef Safety_Circuit < handle
-    
-    properties (Access = public)
-        %% Default values for the safety circuit
-        % Overall State of the safety circuit
-        Safety_State;
+    %% Public variables
+    properties (GetAccess = 'private', SetAccess = 'private')
         
-    end
-    properties (Access = private)
+        % Overall State of the safety circuit
+        safetyState; 
+        
         % ESTOP true indicates normally closed contact - false signal will
         % signify that it has been pressed
-        estop_;
+        estop;
+        
         % Reset true indicates a normally opened RESET pushbutton contact
-        reset_;
+        reset;
         
     end
     
-    %% Static Methods
-    methods (Static)
+    %% Methods
+    methods
         
-        function startupSafety()
-            reset_ = false;
-            estop_ = false;
+        % Constructor
+        function obj = Safety_Circuit()
+            obj.estop = false;
+            obj.reset = false;
         end
         
-        function setEstop()
-            estop_ = false;
+        function setEstop(obj)
+            obj.estop = false;
         end
         
-        function setReset()
-            reset_ = true;
-            estop_ = true;
+        function setReset(obj)
+            obj.reset = true;
+            obj.estop = true;
         end
         
-        function [state] = checkState()
-            if ~estop_
-                reset_ = false;
-                state = false;
-            elseif ~estop_ && reset_
-                state = false;
-            elseif estop_ && reset_
-                state = true;
+        function [safetyState] = checkState(obj, safetyState)
+            if (~obj.estop)
+                obj.safetyState = false;
+            else
+                obj.safetyState = true;
             end
         end
         

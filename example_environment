@@ -1,0 +1,58 @@
+%% Plot table
+[f,v,data] = plyread('table.ply','tri');
+%Length = 2.9m
+%Width = 1.35m
+%Height = 1.1m
+vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue] / 255;
+tableMesh_h = trisurf(f,v(:,1),v(:,2)+3, v(:,3) ...
+    ,'FaceVertexCData',vertexColours,'EdgeColor','interp','EdgeLighting','flat');
+hold on
+
+%% Floor
+[f,v,data] = plyread('Floor.ply','tri');
+vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue] / 255;
+FloorMesh_h = trisurf(f,v(:,1),v(:,2), v(:,3) ...
+    ,'FaceVertexCData',vertexColours,'EdgeColor','interp','EdgeLighting','flat');
+hold on
+%% Wall
+[f,v,data] = plyread('wall.ply','tri');
+vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue] / 255;
+WallMesh_h = trisurf(f,v(:,1),v(:,2)+5, v(:,3)+1.5 ...
+    ,'FaceVertexCData',vertexColours,'EdgeColor','interp','EdgeLighting','flat');
+hold on
+%% Mirror Wall
+[f,v,data] = plyread('mirrorwall.ply','tri');
+vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue] / 255;
+MirrorMesh_h = trisurf(f,v(:,1)-2,v(:,2)+2.5, v(:,3)+1.5 ...
+    ,'FaceVertexCData',vertexColours,'EdgeColor','interp','EdgeLighting','flat');
+hold on
+%% Blue Can
+[f,v,data] = plyread('bluecan.ply','tri');
+vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue] / 255;
+BlueCanMesh_h = trisurf(f,v(:,1)+1,v(:,2)+3, v(:,3)+1.08 ...
+    ,'FaceVertexCData',vertexColours,'EdgeColor','interp','EdgeLighting','flat');
+hold on
+%% Green Can
+[f,v,data] = plyread('greencan.ply','tri');
+vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue] / 255;
+GreenCanMesh_h = trisurf(f,v(:,1)-1,v(:,2)+3, v(:,3)+1.08 ...
+    ,'FaceVertexCData',vertexColours,'EdgeColor','interp','EdgeLighting','flat');
+hold on
+%% Red Can
+[f,v,data] = plyread('can.ply','tri');
+vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue] / 255;
+RedCanMesh_h = trisurf(f,v(:,1)-.5,v(:,2)+3, v(:,3)+1.08 ...
+    ,'FaceVertexCData',vertexColours,'EdgeColor','interp','EdgeLighting','flat');
+hold on
+%% Shelf
+[f,v,data] = plyread('shelf.ply','tri');
+vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue] / 255;
+ShelfMesh_h = trisurf(f,v(:,1),v(:,2)+.5, v(:,3) ...
+    ,'FaceVertexCData',vertexColours,'EdgeColor','interp','EdgeLighting','flat');
+hold on
+%% Extinguisher
+[f,v,data] = plyread('extinguisher.ply','tri');
+vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue] / 255;
+ExtinguisherMesh_h = trisurf(f,v(:,1)-1.6,v(:,2), v(:,3)...
+    ,'FaceVertexCData',vertexColours,'EdgeColor','interp','EdgeLighting','flat');
+hold off

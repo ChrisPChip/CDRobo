@@ -1,41 +1,43 @@
 clc;
 clear;
 
-%% Create Environment and insert robot
+% safetyClass = Safety_Circuit;
+% safetyState = safetyClass.checkState;
+
 environment = Environment;
 environment.generateObjects(environment);
 hold on;
 robot = KinovaGen3(false);
 
-% RGB Can transforms
 RedCan = eye(4)*transl(environment.red(1),environment.red(2),environment.red(3));
 GreenCan = eye(4)*transl(environment.green(1),environment.green(2),environment.green(3));
 BlueCan = eye(4)*transl(environment.blue(1),environment.blue(2),environment.blue(3));
 
 
-str = input('Which colour should go on top? (Red, Green, Blue)? ','s');
-%% This component can be removed once the application is utilised
+
+str = input('Which colour should go on top? (Red, Green, Blue)','s');
+
 if strcmp(str, 'Red')
     colourValue = 1;
-elseif strcmp(str, 'Green')
+elseif strcmp(value, 'Green')
     colourValue = 2;
-elseif strcmp(str, 'Blue')
+elseif strcmp(value, 'Blue')
     colourValue = 3;
 else
     colourValue = 4;
 end
 
-%%
 [r, g, b] = selectColour(colourValue);
 
-Finalred = makehgtform('translate',[r(1) r(2) r(3)]);
-Finalgreen = makehgtform('translate',[g(1) g(2) g(3)]);
-Finalblue = makehgtform('translate',[b(1) b(2) b(3)]);
 
-% Set to 1 once ready to test controlFn(1)
-run = controlFn(0);
 
-while run
+Finalred = makehgtform('translate',[xr,yr,zr]);
+Finalblue = makehgtform('translate',[xb,yb,zb]);
+Finalgreen = makehgtform('translate',[xg,yg,zg]);
+
+run = controlFn;
+
+while controlFn
     %% Animations
     q0 = [0 0 0 0 0 0 0];
     t1 = [0:0.5:8];

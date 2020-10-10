@@ -1,0 +1,14 @@
+function [r, g, b] = selectColour(colour)
+    % Red = 1
+    % Green = 2
+    % Blue = 3
+    % Default = 4
+    
+    if colour == 1
+        r = [0 2 1.9];
+        g = [0.3 2 1];
+        b = [-0.3 2 1];
+    elseif colour == 2
+        
+    end
+end

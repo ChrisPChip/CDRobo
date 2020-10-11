@@ -6,6 +6,17 @@ environment = Environment;
 environment.generateObjects(environment);
 hold on;
 robot = KinovaGen3(false);
+view(3);
+
+% Rotate camera
+% for ax = -5:3:5 % #ok<UNRCH>
+%     for by = [[30:-3:0],[0:3:30]]
+%         view(ax,by);
+%         drawnow();
+%         pause(0.01);
+%     end
+% end
+
 
 % RGB Can transforms
 RedCan = eye(4)*transl(environment.red(1),environment.red(2),environment.red(3));

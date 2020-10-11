@@ -31,14 +31,13 @@ classdef KinovaGen3 < handle
             % THETA, D, A, ALPHA
             % ROBOT BASE IS L(0)
             % L(0) = Link('alpha', 0, 'a', 0, 'd', 0.1564, 'offset', -pi/2);
-            L(1) = Link('d', 0.1564, 'a', 0, 'alpha', 0, 'qlim', [deg2rad(-360), deg2rad(360)]);
-            L(2) = Link('d',0.2848,'a',0,'alpha',-pi/2,'offset',0,'qlim',[deg2rad(-360),deg2rad(360)]);
-            L(3) = Link('d',0.0054,'a',0.41,'alpha',-pi,'offset',-pi/2,'qlim',[deg2rad(-90),deg2rad(90)]);
-            L(4) = Link('d',0.0064,'a',0.2084,'alpha',pi,'offset',0,'qlim',[deg2rad(-170),deg2rad(170)]);
-            L(5) = Link('d',0.0,'a',0,'alpha',-pi/2,'offset',-pi/2,'qlim',[deg2rad(-360),deg2rad(360)]);
-            L(6) = Link('d',0.1059+.1059,'a',0,'alpha',-pi/2,'offset',0,'qlim',[deg2rad(-360),deg2rad(360)]);
-            L(7) = Link('d',0,'a',0,'alpha',0,'offset',0,'qlim',[deg2rad(-360),deg2rad(360)]);
-            
+      L(1) = Link('d',0.2848,'a',0,'alpha',-pi/2,'offset',0,'qlim',[deg2rad(-360),deg2rad(360)]);
+      L(2) = Link('d',0.0054,'a',0.41,'alpha',-pi,'offset',-pi/2,'qlim',[deg2rad(-90),deg2rad(90)]);
+      L(3) = Link('d',0.9064,'a',0,'alpha',-pi/2,'offset',-pi/2,'qlim',[deg2rad(-147.8),deg2rad(147.8)]);
+      L(4) = Link('d',0.2084+.1059,'a',0,'alpha',-pi/2,'offset',0,'qlim',[deg2rad(-360),deg2rad(360)]);
+      L(5) = Link('d',0,'a',0,'alpha',pi/2,'offset',0,'qlim',[deg2rad(-120.3),deg2rad(120.3)]);
+      L(6) = Link('d',0.1059+.06153,'a',0,'alpha',0,'offset',0,'qlim',[deg2rad(-360),deg2rad(360)]);
+
             
             % Incorporate offsets
             

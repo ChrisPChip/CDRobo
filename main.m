@@ -48,7 +48,7 @@ run = controlFn(0);
 
 while run
     %% Animations
-    q0 = [0 0 0 0 0 0 0];
+    q0 = [0 0 0 0 0 0];
     t1 = [0:0.5:8];
     q1 = robot.model.ikcon(RedCan,q0);
     Trajred = jtraj(q0,q1,t1);

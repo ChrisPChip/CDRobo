@@ -1,9 +1,9 @@
 function moveRobot(robot, q1, q2)
 %% This function is used to move the robot in a trapezoidal ramp-up and ramp-down velocity control
 
-steps = 50;
+% Poses and respective transforms
 
-qlim = robot.qlim;
+steps = 50;
 
 %% LSPB - Scalar trajectory that uses a constant velocity segmont and parabolic bends (a trapezoidal path)
 
@@ -19,36 +19,15 @@ for i = 1:steps
 end
 
 % Initialise velocity and acceleration containers
-velocity = zeros(steps, 6);
-acceleration = zeros(steps, 6);
+% velocity = zeros(steps, 6);
+% acceleration = zeros(steps, 6);
 
 for i = 2:steps
     
-    % Evaluate relative joint velocity
-    velocity(i,:) = qMatrix(i,:) - qMatrix(i-1,:); 
-    
-    % Evaluate relative acceleration
-    acceleration(i,:) = velocity(i,:) - velocity(i-1,:);
-    
+    robotMove = qMatrix(i,:);
+%     velocity(i,:) = qMatrix(i,:) - qMatrix(i-1,:);
+%     acceleration(i,:) = velocity(i,:) - velocity(i-1,:);
+    robot.model.animate(robotMove);
+    drawnow();
 end
-
-%% Graphing if required
-% figure(1)
-% for i = 1:6
-%     subplot(3,2,i)
-%     plot(velocity(:,i),'k','LineWidth',1)
-%     title(['Joint ', num2str(i)])
-%     xlabel('Step')
-%     ylabel('Joint Velocity')
-% end
-% 
-% figure(2)
-% for i = 1:6
-%     subplot(3,2,i)
-%     plot(acceleration(:,i),'k','LineWidth',1)
-%     title(['Joint ', num2str(i)])
-%     xlabel('Step')
-%     ylabel('Joint Acceleration')
-% end
-
 end

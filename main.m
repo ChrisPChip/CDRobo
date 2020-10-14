@@ -1,27 +1,30 @@
 clc;
 clear;
+close;
 
 %% Create Environment and insert robot
 environment = Environment;
-environment.generateObjects(environment);
-hold on;
-robot = KinovaGen3(false);
-view(3);
 
-% Rotate camera
-% for ax = -5:3:5 % #ok<UNRCH>
-%     for by = [[30:-3:0],[0:3:30]]
-%         view(ax,by);
-%         drawnow();
-%         pause(0.01);
-%     end
-% end
+red = [-0.5 3 (1.08 + 0.06)];
+green = [-1 3 (1.08 + 0.06)];
+blue = [0.5 3 (1.08 + 0.06)];
+
+% environment.generateObjects(environment, red, green, blue);
+environment.generateRedCan(environment, red);
+environment.generateGreenCan(environment, green);
+environment.generateBlueCan(environment, blue);
+hold on;
+robot = KinovaGen3;
+view(3);
 
 
 % RGB Can transforms
 RedCan = eye(4)*transl(environment.red(1),environment.red(2),environment.red(3));
 GreenCan = eye(4)*transl(environment.green(1),environment.green(2),environment.green(3));
-BlueCan = eye(4)*transl(environment.blue(1),environment.blue(2),environment.blue(3));
+
+% Had to be rotated by troty(pi/2) as the endefector was going below the
+% table to get to destination coordinates
+BlueCan = eye(4)*transl(environment.blue(1),environment.blue(2),environment.blue(3))*troty(pi/2);
 
 
 str = input('Which colour should go on top? (Red, Green, Blue)? ','s');
@@ -36,15 +39,50 @@ else
     colourValue = 4;
 end
 
-%%
-[r, g, b] = selectColour(colourValue);
+%% CHANGE SELECTCOLOUR VALUE BACK TO STR VALUE ONCE TESTING IS COMPLETE
+[r, g, b] = selectColour(3);
 
 Finalred = makehgtform('translate',[r(1) r(2) r(3)]);
 Finalgreen = makehgtform('translate',[g(1) g(2) g(3)]);
 Finalblue = makehgtform('translate',[b(1) b(2) b(3)]);
-
+Red
 % Set to 1 once ready to test controlFn(1)
 run = controlFn(0);
+
+%% Testing
+
+disp('Press Enter to continue...');
+
+%     q0 = [0 0 0 0 0 0];
+% %     t1 = [0:0.5:8];
+%     q1 = robot.model.ikcon(RedCan);
+%     moveRobot(robot, q0, q1);
+%     q2 = robot.model.ikcon(GreenCan);
+%     moveRobot(robot, q1, q2);
+
+q0 = [0 0 0 0 0 0];
+t1 = [0:0.5:8];
+q1 = robot.model.ikcon(BlueCan,q0);
+Trajred = jtraj(q0,q1,t1);
+
+for i = 1:size(Trajred,1)
+    robot.model.animate(Trajred(i,:));
+    drawnow();
+end
+
+gripperActive = 1;
+
+if gripperActive
+    for i = 1:size(Trajred,1)
+        robot.model.animate(Trajred(i,:));
+        delete(environment.blue);
+%        environment.generateBlueCan(environment, blue);
+        drawnow();
+    end
+end
+
+
+%%
 
 while run
     %% Animations

@@ -12,9 +12,9 @@ classdef Environment < handle
         ext = [-1.6 0 0];
         
         % Cans
-        red = [-0.5 3 1.08];
-        green = [-1 3 1.08];
-        blue = [1 3 1.08];
+        redPose;
+        greenPose;
+        bluePose;
         
         %% 3D model parameters
         % Ply data
@@ -27,16 +27,18 @@ classdef Environment < handle
     %% Public Methods
     methods (Static)
         
-        function generateObjects(obj)
-            obj.generateEnvironment(obj);
-            obj.generateCans(obj);
+        function generateObjects(obj, r, g, b)
+            obj.generateStatics(obj);
+            obj.generateRedCan(obj, r);
+            obj.generateGreenCan(obj, g);
+            obj.generateBlueCan(obj, b);
         end
     end
     
     %% Private Methods
     methods (Static)
         
-        function generateEnvironment(obj)
+        function generateStatics(obj)
             %% Insert PLY data
             % Table
             [f,v,data] = plyread('table.ply','tri');
@@ -83,30 +85,46 @@ classdef Environment < handle
             
         end
         
-        function generateCans(obj)
+        function generateRedCan(obj, r)
             %% Insert PLY Data
             % Red Can
-            [f,v,data] = plyread('can.ply','tri');
+            [f,v,data] = plyread('redcan.ply','tri');
             vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue] / 255;
-            redCanMesh_h = trisurf(f,v(:,1) + obj.red(1),v(:,2) + obj.red(3), v(:,3) + obj.red(3) ...
+            obj.redCanMesh_h = trisurf(f,v(:,1) + r(1),v(:,2) + r(2), v(:,3) + r(3) ...
                 ,'FaceVertexCData',vertexColours,'EdgeColor','interp','EdgeLighting','flat');
-            hold on
-            
+%             hold on
+        end
+        
+        function generateGreenCan(obj, g)
             % Green Can
             [f,v,data] = plyread('greencan.ply','tri');
             vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue] / 255;
-            greenCanMesh_h = trisurf(f,v(:,1) + obj.green(1),v(:,2) + obj.green(2), v(:,3) + obj.green(3) ...
+            obj.greenCanMesh_h = trisurf(f,v(:,1) + g(1),v(:,2) + g(2), v(:,3) + g(3) ...
                 ,'FaceVertexCData',vertexColours,'EdgeColor','interp','EdgeLighting','flat');
-            hold on
-            
+%             hold on
+        end
+        
+        function [loc] = generateBlueCan(obj, b)
             % Blue Can
             [f,v,data] = plyread('bluecan.ply','tri');
             vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue] / 255;
-            blueCanMesh_h = trisurf(f,v(:,1) + obj.blue(1),v(:,2) + obj.blue(2), v(:,3) + obj.blue(3) ...
+            blueCanMesh_h = trisurf(f,v(:,1) + b(1),v(:,2) + b(2), v(:,3) + b(3) ...
                 ,'FaceVertexCData',vertexColours,'EdgeColor','interp','EdgeLighting','flat');
             hold on
+            
+            obj.bluePose  = transl(b);
+            VertexCount = size(v,2);
+            midPoint = sum(v)/VertexCount;
+            PartVertices = v - repmat(midPoint, VertexCount, 1);
+            loc = blueCanMesh_h;
+            
+            updatedPoints = [obj.bluePose * [PartVertices, ones(VertexCount, 1)]']';
+            
+            blueCanMesh_h.Vertices = updatedPoints(:, 1:3);
             
         end
         
     end
+    
 end
+

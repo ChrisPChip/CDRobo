@@ -96,7 +96,7 @@ end
 
 %% Red Can Sequence
 
-q5 = robot.model.ikcon(redPos);
+q5 = robot.model.ikcon(greenPos);
 qMatrix = jtraj(q0, q5, steps);
 
 for i = 1:steps
@@ -104,14 +104,14 @@ for i = 1:steps
     drawnow();
 end
 
-q6 = robot.model.ikcon(redGoalPose);
+q6 = robot.model.ikcon(red);
 qMatrix = jtraj(q5, q6, steps);
 
 for i = 1:steps
     robot.model.animate(qMatrix(i,:));
-    redTransl = robot.model.fkine(qMatrix(i,:));
-    delete(redCanLocation);
-    redCanLocation = redCan(redTransl*troty(pi/2));
+    greenTransl = robot.model.fkine(qMatrix(i,:));
+    delete(greenCanLocation);
+    greenCanLocation = greenCan(greenTransl*troty(pi/2));
     drawnow();
 end
 

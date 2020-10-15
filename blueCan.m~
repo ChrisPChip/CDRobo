@@ -1,0 +1,31 @@
+function blueCan(b)
+
+[f,v,data] = plyread('bluecan.ply','tri');
+
+            hold on;
+            
+            canVertexCount = size(v, 1);
+            
+            midPoint = sum(v)/canVertexCount;
+            
+            canVerts = v - repmat(midPoint, canVertexCount, 1);
+            
+            canPose  = eye(4) * transl(b);
+            
+            vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue] / 255;
+            
+            blueCanMesh_h = trisurf(f,v(:,1) + b(1),v(:,2) + b(2), v(:,3) + b(3) ...
+                ,'FaceVertexCData',vertexColours,'EdgeColor','interp','EdgeLighting','flat');
+            hold on
+            
+            canPose  = transl(b);
+            VertexCount = size(v,2);
+            midPoint = sum(v)/VertexCount;
+            PartVertices = v - repmat(midPoint, VertexCount, 1);
+            loc = blueCanMesh_h;
+            
+            updatedPoints = [canPose * [PartVertices, ones(VertexCount, 1)]']';
+            
+            blueCanMesh_h.Vertices = updatedPoints(:, 1:3);
+            
+        end

@@ -1,27 +1,31 @@
-function [r, g, b] = selectColour(colour)
+function [r, g, b] = selectColour(str)
 %% 4 Settings available
-    % Red = 1
-    % Green = 2
-    % Blue = 3
-    % Default = 4 (Doesn't matter for input value)
+% Red = 1
+% Green = 2
+% Blue = 3
+% Default = 4 (Doesn't matter for input value)
+
+
+
+if strcmpi(str, 'Red')          % colour == 1
+    r = [0.6 0 2.042];
+    g = [0.6 0 1.77];
+    b = [0.6 0 1.503];
     
-    if colour == 1
-        r = [0 2 1.9];
-        g = [0.3 2 1];
-        b = [-0.3 2 1];
-    elseif colour == 2
-        r = [-0.3 2 1];
-        g = [0 2 1.9];
-        b = [0.3 2 1];
-    elseif colour == 3
-        r = [-0.3 2 1];
-        g = [0.3 2 1];
-        b = [0 2 1.9];
-    else
-        disp ('Incorrect Input, placing all cans in middle shelf')
-        r = [-0.3 2 1];
-        g = [0 2 1];
-        b = [0.3 2 1];
-    end
+elseif strcmpi(str, 'Green')    % colour == 2
+    g = [0.6 0 2.042];
+    b = [0.6 0 1.77];
+    r = [0.6 0 1.503];
     
+elseif  strcmpi(str, 'Blue')    % colour == 3
+    b = [0.6 0 2.042];
+    g = [0.6 0 1.77];
+    r = [0.6 0 1.503];
+    
+else
+    disp ('Incorrect Input. Placing all cans on shelf 2.')
+    r = [0.6 0.25 1.77];
+    g = [0.6 0 1.77];
+    b = [0.6 -0.25 1.77];
+end
 end

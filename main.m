@@ -1,140 +1,146 @@
-clc;
-clear;
 close;
+clear;
+clc;
 
-%% Create Environment and insert robot
-environment = Environment;
+%% Can Starting Positions
 
-red = [-0.5 3 (1.08 + 0.06)];
-green = [-1 3 (1.08 + 0.06)];
-blue = [0.5 3 (1.08 + 0.06)];
+r = [-0.4 0.2 1.14];
+g = [-0.5 0 1.14];
+b = [-0.6 -0.2 1.14];
 
-% environment.generateObjects(environment, red, green, blue);
-environment.generateRedCan(environment, red);
-environment.generateGreenCan(environment, green);
-environment.generateBlueCan(environment, blue);
-hold on;
+% Create starting can transforms
+redStart = transl(r);
+greenStart = transl(g);
+blueStart = transl(b);
+
+% Transforms for Robot Use
+redPos = transl(r)*troty(pi/2)*trotx(pi/2)*trotz(pi);
+greenPos = transl(g)*troty(pi/2)*trotx(pi/2)*trotz(pi);
+bluePos = transl(b)*troty(pi/2)*trotx(pi/2)*trotz(pi);
+
+%% Create Environment, Robots, and Objects
+
+set(figure(1), 'WindowStyle', 'Docked');
+
+% Create Environment
+env = Environment;
+env.generateObjects(env);
+
+% Plot Collision boxes
+col = Collision;
+
+% Create Robot
 robot = KinovaGen3;
+
+% Teach Functionality
+% robot.model.teach;
+
+% Can Objects in Environment
+redCanLocation = redCan(redStart);
+greenCanLocation = greenCan(greenStart);
+blueCanLocation = blueCan(blueStart);
+
+hold on;
+axis equal;
 view(3);
 
-
-% RGB Can transforms
-RedCan = eye(4)*transl(environment.red(1),environment.red(2),environment.red(3));
-GreenCan = eye(4)*transl(environment.green(1),environment.green(2),environment.green(3));
-
-% Had to be rotated by troty(pi/2) as the endefector was going below the
-% table to get to destination coordinates
-BlueCan = eye(4)*transl(environment.blue(1),environment.blue(2),environment.blue(3))*troty(pi/2);
-
+%% Get user to select colour configuration
 
 str = input('Which colour should go on top? (Red, Green, Blue)? ','s');
-%% This component can be removed once the application is utilised
-if strcmp(str, 'Red')
-    colourValue = 1;
-elseif strcmp(str, 'Green')
-    colourValue = 2;
-elseif strcmp(str, 'Blue')
-    colourValue = 3;
-else
-    colourValue = 4;
-end
 
-%% CHANGE SELECTCOLOUR VALUE BACK TO STR VALUE ONCE TESTING IS COMPLETE
-[r, g, b] = selectColour(3);
+[redGoalCo, greenGoalCo, blueGoalCo] = selectColour(str);
 
-Finalred = makehgtform('translate',[r(1) r(2) r(3)]);
-Finalgreen = makehgtform('translate',[g(1) g(2) g(3)]);
-Finalblue = makehgtform('translate',[b(1) b(2) b(3)]);
-Red
-% Set to 1 once ready to test controlFn(1)
-run = controlFn(0);
+redGoalPose = transl(redGoalCo)*troty(pi/2)*trotz(pi);
+greenGoalPose = transl(greenGoalCo)*troty(pi/2)*trotz(pi);
+blueGoalPose = transl(blueGoalCo)*troty(pi/2)*trotz(pi);
 
-%% Testing
-
-disp('Press Enter to continue...');
-
-%     q0 = [0 0 0 0 0 0];
-% %     t1 = [0:0.5:8];
-%     q1 = robot.model.ikcon(RedCan);
-%     moveRobot(robot, q0, q1);
-%     q2 = robot.model.ikcon(GreenCan);
-%     moveRobot(robot, q1, q2);
+%% Initial Values
 
 q0 = [0 0 0 0 0 0];
-t1 = [0:0.5:8];
-q1 = robot.model.ikcon(BlueCan,q0);
-Trajred = jtraj(q0,q1,t1);
+steps = 64;
 
-for i = 1:size(Trajred,1)
-    robot.model.animate(Trajred(i,:));
+%% Animation
+
+% Red Can Sequence
+
+q1 = robot.model.ikcon(redPos);
+qMatrix = jtraj(q0, q1, steps);
+
+for i = 1:steps
+    robot.model.animate(qMatrix(i,:));
     drawnow();
 end
 
-gripperActive = 1;
+q2 = robot.model.ikcon(redGoalPose);
+qMatrix = jtraj(q1, q2, steps);
 
-if gripperActive
-    for i = 1:size(Trajred,1)
-        robot.model.animate(Trajred(i,:));
-        delete(environment.blue);
-%        environment.generateBlueCan(environment, blue);
-        drawnow();
-    end
+for i = 1:steps
+    robot.model.animate(qMatrix(i,:));
+    redStart = robot.model.fkine(qMatrix(i,:));
+    delete(redCanLocation);
+    redCanLocation = redCan(redStart*troty(pi/2));
+    drawnow();
 end
 
+qMatrix = jtraj(q2,q0,steps);
 
-%%
+for i = 1:steps
+    robot.model.animate(qMatrix(i,:));
+    drawnow();
+end
 
-while run
-    %% Animations
-    q0 = [0 0 0 0 0 0];
-    t1 = [0:0.5:8];
-    q1 = robot.model.ikcon(RedCan,q0);
-    Trajred = jtraj(q0,q1,t1);
-    
-    for i = 1:size(Trajred,1)
-        robot.model.animate(Trajred(i,:));
-        drawnow();
-    end
-    
-    q2 = robot.model.ikcon(Finalred,q1);
-    TrajFred = jtraj(q1,q2,t1);
-    
-    for i = 1:size(TrajFred,1)
-        robot.model.animate(TrajFred(i,:));
-        drawnow();
-    end
-    
-    % Trajectory to blue
-    q3 = robot.model.ikcon(q2);
-    Trajblue = jtraj(q2,q3,t1);
-    
-    for i = 1:size(Trajblue,1)
-        robot.model.animate(Trajblue(i,:));
-        drawnow();
-    end
-    
-    q4 = robot.model.ikcon(Finalblue,q3);
-    TrajFblue = jtraj(q3,q4,t1);
-    
-    for i = 1:size(TrajFblue,1)
-        robot.model.animate(TrajFblue(i,:));
-        drawnow();
-    end
-    
-    % Trajectory to green
-    q5 = robot.model.ikcon(GreenCan,q4);
-    Trajgreen = jtraj(q4,q5,t1);
-    
-    for i = 1:size(Trajgreen,1)
-        robot.model.animate(Trajgreen(i,:));
-        drawnow();
-    end
-    
-    q6 = robot.model.ikcon(Finalgreen,q5);
-    TrajFgreen = jtraj(q5,q6,t1);
-    
-    for i = 1:size(TrajFgreen,1)
-        robot.model.animate(TrajFgreen(i,:));
-        drawnow();
-    end
+% Green Can Sequence
+
+q3 = robot.model.ikcon(greenPos);
+qMatrix = jtraj(q0, q3, steps);
+
+for i = 1:steps
+    robot.model.animate(qMatrix(i,:));
+    drawnow();
+end
+
+q4 = robot.model.ikcon(greenGoalPose);
+qMatrix = jtraj(q3, q4, steps);
+
+for i = 1:steps
+    robot.model.animate(qMatrix(i,:));
+    greenStart = robot.model.fkine(qMatrix(i,:));
+    delete(greenCanLocation);
+    greenCanLocation = greenCan(greenStart*troty(pi/2));
+    drawnow();
+end
+
+qMatrix = jtraj(q4,q0,steps);
+
+for i = 1:steps
+    robot.model.animate(qMatrix(i,:));
+    drawnow();
+end
+
+% Blue Can Sequence
+
+q5 = robot.model.ikcon(bluePos);
+qMatrix = jtraj(q0,q5,steps);
+
+for i = 1:steps
+    robot.model.animate(qMatrix(i,:));
+    drawnow();
+end
+
+q6 = robot.model.ikcon(blueGoalPose);
+qMatrix = jtraj(q5, q6, steps);
+
+for i = 1:steps
+    robot.model.animate(qMatrix(i,:));
+    blueStart = robot.model.fkine(qMatrix(i,:));
+    delete(blueCanLocation);
+    blueCanLocation = blueCan(blueStart*troty(pi/2));
+    drawnow();
+end
+
+qMatrix = jtraj(q6,q0,steps);
+
+for i = 1:steps
+    robot.model.animate(qMatrix(i,:));
+    drawnow();
 end

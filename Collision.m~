@@ -1,0 +1,52 @@
+classdef Collision < handle
+    
+    properties
+        % Shelf
+        shelfC = [1.95 0 1.25];
+        shelfS = 2.5;
+        
+        % Table collision box
+        tableC = [0 0 0.5365];
+        tableS = 1.15;
+        
+        % Tray collision box
+        
+        % Shelf1
+%         shelf1C = [0.3326 
+        
+        % Shelf2
+        
+        % Shelf3
+        
+        % Shelf4
+        
+        % Shelf5
+        
+        plot = true;
+        
+    end
+    
+    methods(Static)
+        
+        function self = Collision()
+            self.createTableBox(self);
+            self.createShelfBox(self);
+            
+        end
+        
+        function createTableBox(self)
+            plotOptions.plotFaces = self.plot;
+            [v, f, data] = RectangularPrism(self.tableC + self.tableS/2, self.tableC - self.tableS/2, plotOptions);
+        end
+        
+        function createShelfBox(self)
+            plotOptions.plotFaces = self.plot;
+            [v, f, data] = RectangularPrism(self.shelfC + self.tableS/2, self.shelfC - self.tableS/2, plotOptions);
+        end
+        
+        
+        
+        
+    end
+    
+end

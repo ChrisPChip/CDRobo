@@ -1,19 +1,11 @@
 classdef KinovaGen3 < handle
     properties
-        %> Robot model
         model;
-        
-        %>
         workspace = [0 1 3.5 2.5 0 3];
-        
-        % FLAG NOT REQUIRED
-        %> Flag to indicate if gripper is used
-%         useGripper = false;
     end
     
-    methods%% Class for KinovaGen3 robot simulation
+    methods
         function self = KinovaGen3
-%             self.useGripper = useGripper;
             self.GetKinovaRobot();
             self.PlotAndColourRobot();
         end
@@ -40,7 +32,7 @@ classdef KinovaGen3 < handle
             self.model = SerialLink(L,'name',name);
             
             % Rotate robot to the correct orientation
-            self.model.base = self.model.base * transl(0, 3, 1);
+            self.model.base = self.model.base * transl(0, 0, 1.078);
             %% REMOVE AFTER TESTING
 %                self.model.plot(zeros(1, self.model.n), 'workspace', self.workspace, 'scale', 0.1);
         end

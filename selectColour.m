@@ -8,24 +8,24 @@ function [r, g, b] = selectColour(str)
 
 
 if strcmpi(str, 'Red')          % colour == 1
-    r = [0.6 0 2.042];
-    g = [0.6 0 1.77];
-    b = [0.6 0 1.503];
+    r = [0 -1 2.042];
+    g = [0 -1 1.77];
+    b = [0 -1 1.503];
     
 elseif strcmpi(str, 'Green')    % colour == 2
-    g = [0.6 0 2.042];
-    b = [0.6 0 1.77];
-    r = [0.6 0 1.503];
+    g = [0 -1 2.042];
+    b = [0 -1 1.77];
+    r = [0 -1 1.503];
     
 elseif  strcmpi(str, 'Blue')    % colour == 3
-    b = [0.6 0 2.042];
-    g = [0.6 0 1.77];
-    r = [0.6 0 1.503];
+    b = [0 -1 2.042];
+    g = [0 -1 1.77];
+    r = [0 -1 1.503];
     
 else
     disp ('Incorrect Input. Placing all cans on shelf 2.')
-    r = [0.6 0.25 1.77];
-    g = [0.6 0 1.77];
-    b = [0.6 -0.25 1.77];
+    r = [0-.25 -1 1.77];
+    g = [0 -1 1.77];
+    b = [0.25 -1 1.77];
 end
 end

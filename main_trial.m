@@ -90,10 +90,17 @@ q0 = [0 0 0 0 0 0];
 steps = 64;
 
 %% Animation
-r = [-1 0 1.14];
-g = [-1 0.3 1.14];
-b = [1 -0.4 1.14];
+r = [-.9 0.2 1.14];
+g = [-.9 0 1.14];
+b = [-.9 -0.2 1.14];
+% r = [-0.4 0.2 1.14];
+% g = [-0.5 0 1.14];
+% b = [-0.6 -0.2 1.14];
 q0 = [0 0 0 0 0 0];
+%ce
+Roll = [0, .53, -67.836, -.032, -67.836, 81.57, -67.836 ];
+Pitch = [0, -.96, 5.01, -75.57, 5.01, -78.49, 5.01];
+Yaw = [0, 2.45, -97.55, -.0249, -97.55, 70.372, -97.55];
 
 current = robot.model.fkine(q0);
 robot.model.animate(q0)
@@ -151,9 +158,10 @@ for j = 1:6
 
 end
 qWaypoints = [qWaypoints; robot.model.ikcon(transl(x,y,z),q1)];
+
 % RMRC
 % steps = size(qWaypoints,1);
-steps = 20;
+steps = 40;
 deltaT = 0.05;
 x0 = zeros(3,steps);
 s = lspb(0,1,steps);
@@ -168,10 +176,10 @@ angleError = zeros(3,steps);
 x1 = robot.model.fkine(q0);
 x2 = robot.model.fkine(qWaypoints(end,:));
 for i = 1:steps
-    x0(:,i) = x1(1:3,4)*(1-s(i)) + s(i)*x2(1:3,4);                 
-    theta(1,i) = 0;               
-    theta(2,i) = 5*pi/9;            
-    theta(3,i) = 0;
+    x0(:,i) = x1(1:3,4)*(1-s(i)) + s(i)*x2(1:3,4);
+    theta(1,i) = Roll(k);
+    theta(2,i) = Pitch(k);
+    theta(3,i) = Yaw(k);
 end
 
 for i = 1:steps-1
@@ -203,9 +211,23 @@ for i = 1:steps-1
     qWaypoints(i+1,:) = real(qWaypoints(i,:)) + deltaT*real(qdot(i,:));                         	
     positionError(:,i) = x0(:,i+1) - T(1:3,4);                                               
 end
-
-robot.model.animate(qWaypoints);
-
+for anim=1:steps
+robot.model.animate(qWaypoints(anim,:));
+if k == 2 
+   redStart = robot.model.fkine(qWaypoints(anim,:));
+   delete(redCanLocation);
+   redCanLocation = redCan(redStart*troty(pi/2)); 
+elseif k == 4 
+    greenStart = robot.model.fkine(qWaypoints(anim,:));
+    delete(greenCanLocation);
+    greenCanLocation = greenCan(greenStart*troty(pi/2));
+elseif k == 6
+    blueStart = robot.model.fkine(qWaypoints(anim,:));
+    delete(blueCanLocation);
+    blueCanLocation = blueCan(blueStart*troty(pi/2));
+end
+drawnow();
+end
 [~,all] = robot.model.fkine(q1);
 for i = 1 : size(all,3)-1
     for faceIndex1 = 1:size(faces1,1)
@@ -229,6 +251,7 @@ for i = 1 : size(all,3)-1
         end
     end
 end
+disp('Moving to final');
 qWaypoints = [qWaypoints(end,:); q1];
 
 %  RMRC To final Position
@@ -238,9 +261,9 @@ x1 = robot.model.fkine(q0);
 x2 = robot.model.fkine(q1);
 for i = 1:steps
     x0(:,i) = x1(1:3,4)*(1-s(i)) + s(i)*x2(1:3,4);                  
-    theta(1,i) = 0;               
-    theta(2,i) = 5*pi/9;            
-    theta(3,i) = 0;
+    theta(1,i) = Roll(k+1);
+    theta(2,i) = Pitch(k+1);
+    theta(3,i) = Yaw(k+1);
 end
 
 for i = 1:steps-1
@@ -272,51 +295,150 @@ for i = 1:steps-1
     qWaypoints(i+1,:) = real(qWaypoints(i,:)) + deltaT*real(qdot(i,:));                         
     positionError(:,i) = x0(:,i+1) - T(1:3,4);                                            
  end
-
-robot.model.animate(qWaypoints);
-
+for anim = 1:steps
+robot.model.animate(qWaypoints(anim,:));
+if k == 2 
+   redStart = robot.model.fkine(qWaypoints(anim,:));
+   delete(redCanLocation);
+   redCanLocation = redCan(redStart*troty(pi/2)); 
+elseif k == 4 
+    greenStart = robot.model.fkine(qWaypoints(anim,:));
+    delete(greenCanLocation);
+    greenCanLocation = greenCan(greenStart*troty(pi/2));
+elseif k == 6
+    blueStart = robot.model.fkine(qWaypoints(anim,:));
+    delete(blueCanLocation);
+    blueCanLocation = blueCan(blueStart*troty(pi/2));
 end
-   
-%% Trajectory with RRT
-% q0 = robot.model.getpos;
-% q1 = rad(1,:);
-% qWaypoints = [q0;q1];
-% checkedTillWaypoint = 1;
-% isCollision = true;
-% qMatrix = [];
-% while (isCollision)
-%     startWaypoint = checkedTillWaypoint;
-%     for i = startWaypoint:size(qWaypoints,1)-1
-%          qMatrixJoin = InterpolateWaypointRadians(qWaypoints(i:i+1,:),deg2rad(10),robot.model);
-%         if ~IsCollision(robot.model,qMatrixJoin,faces1,vertex1,Normal1)
-%             qMatrix = [qMatrix; qMatrixJoin]; %#ok<AGROW>
-%              robot.model.plot(qMatrixJoin);
-%             size(qMatrix);
-%             isCollision = false;
-%             checkedTillWaypoint = i+1;
-%             % Now try and join to the final goal (q2)
-%              qMatrixJoin = InterpolateWaypointRadians([qMatrix(end,:); q1],deg2rad(10),robot.model);
-%             if ~IsCollision(robot.model,qMatrixJoin,faces1,vertex1,Normal1)
-%                 qMatrix = [qMatrix;qMatrixJoin];
-%                 % Reached goal without collision, so break out
-%                 break;
-%             end
-%         else
-%             % Randomly pick a pose that is not in collision
-%             qRand = (2 * rand(1,3) - 1) * pi;
-%             while IsCollision(robot.model,qRand,faces1,vertex1,Normal1)
-%                 qRand = (2 * rand(1,3) - 1) * pi;
-%             end
-%             qWaypoints =[ qWaypoints(1:i,:); qRand; qWaypoints(i+1:end,:)];
-%             isCollision = true;
-%             break;
-%         end
-%     end
-% 
-% end 
-%  
-%           
+drawnow();
+end
+end
+ 
+%% Retreat from symbol 
 
+pStar = [ 662 362 362 662; 362 362 662 662];
+
+
+P=[-1.2,-1.2,-1.2,-1.2;
+-0.25,0.25,0.25,-0.25;
+ 2,2,1.5,1.5];
+
+q0 = [0; 0; pi/2; pi/10; 0; pi/4];
+
+cam = CentralCamera('focal', 0.08, 'pixel', 10e-5, ...
+'resolution', [1024 1024], 'centre', [512 512],'name','kinova');
+
+fps = 25;
+lambda = 0.6;
+depth = mean (P(1,:));
+Tc0= robot.model.fkine(q0);
+robot.model.animate(q0');
+drawnow
+cam.T = Tc0;
+% cam.plot_camera('Tcam',Tc0, 'label','scale',0.05);
+% plot_sphere(P, 0.05, 'b')
+lighting gouraud
+light
+p = cam.plot(P, 'Tcam', Tc0);
+cam.clf()
+cam.plot(pStar, '*'); 
+cam.hold(true);
+cam.plot(P, 'Tcam', Tc0, 'o'); 
+pause(2)
+cam.hold(true);
+cam.plot(P);
+vel_p = [];
+uv_p = [];
+history = [];
+ksteps = 0;
+ for i=1:10
+        ksteps = ksteps + 1;
+        
+        % compute the view of the camera
+        uv = cam.plot(P);
+        
+        % compute image plane error as a column
+        e = pStar-uv;   % feature error
+        e = e(:);
+        Zest = [];
+        
+        % compute the Jacobian
+        if isempty(depth)
+            % exact depth from simulation
+            pt = homtrans(inv(Tcam), P);
+            J = cam.visjac_p(uv, pt(3,:) );
+        elseif ~isempty(Zest)
+            J = cam.visjac_p(uv, Zest);
+        else
+            J = cam.visjac_p(uv, depth );
+        end
+
+        % compute the velocity of camera in camera frame
+        try
+            v = lambda * pinv(J) * e;
+        catch
+            status = -1;
+            return
+        end
+        fprintf('v: %.3f %.3f %.3f %.3f %.3f %.3f\n', v);
+
+        %compute robot's Jacobian and inverse
+        J2 = robot.model.jacobn(q0);
+        Jinv = pinv(J2);
+        % get joint velocities
+        qp = Jinv*v;
+
+         
+         %Maximum angular velocity cannot exceed 180 degrees/s
+         ind=find(qp>pi);
+         if ~isempty(ind)
+             qp(ind)=pi;
+         end
+         ind=find(qp<-pi);
+         if ~isempty(ind)
+             qp(ind)=-pi;
+         end
+
+        %Update joints 
+        q = q0 - (1/fps)*qp;
+        deltaT = 0.05; 
+        s = lspb(0,1,steps);
+        qMatrix = nan(steps,6);
+        for wtg = 1:steps
+            qMatrix(i,:) = (1-s(wtg))*q0+s(wtg)*qp;
+        end
+        robot.model.animate(q');
+
+        %Get camera location
+        Tc = robot.model.fkine(q);
+        cam.T = Tc;
+
+        drawnow
+        
+        % update the history variables
+        hist.uv = uv(:);
+        vel = v;
+        hist.vel = vel;
+        hist.e = e;
+        hist.en = norm(e);
+        hist.jcond = cond(J);
+        hist.Tcam = Tc;
+        hist.vel_p = vel;
+        hist.uv_p = uv;
+        hist.qp = qp;
+        hist.q = q;
+
+        history = [history hist];
+
+         pause(1/fps)
+
+        if ~isempty(200) && (ksteps > 200)
+            break;
+        end
+        
+        %update current joint position
+        q0 = q;
+ end 
 %% Trajectory with jtraj
 % q1 = robot.model.ikcon(redPos);
 % qMatrix = jtraj(q0, q1, steps);

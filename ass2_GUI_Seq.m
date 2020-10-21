@@ -506,9 +506,9 @@ function StartPB_Callback(hObject, eventdata, handles)
 % hObject    handle to StartPB (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-r = [-.9 0.2 1.14];
-g = [-.9 0 1.14];
-b = [-.9 -0.2 1.14];
+r = [-.7 0.2 1.14];
+g = [-.7 0 1.14];
+b = [-.7 -0.2 1.14];
 
 % Create starting can transforms
 redStart = transl(r);
@@ -530,7 +530,7 @@ str = input('Which colour should go on top? (Red, Green, Blue)? ','s');
 
 [redGoalCo, greenGoalCo, blueGoalCo] = selectColour(str);
 
-redGoalPose = transl(redGoalCo)*troty(pi/2)*trotz(pi);
+redGoalPose = transl(redGoalCo)*trotz(pi);
 greenGoalPose = transl(greenGoalCo)*troty(pi/2)*trotz(pi);
 blueGoalPose = transl(blueGoalCo)*troty(pi/2)*trotz(pi);
 

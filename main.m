@@ -4,9 +4,9 @@ clc;
 
 %% Can Starting Positions
 
-r = [-0.4 0.2 1.14];
-g = [-0.5 0 1.14];
-b = [-0.6 -0.2 1.14];
+r = [-.9 0.2 1.14];
+g = [-.9 0 1.14];
+b = [-.9 -0.2 1.14];
 
 % Create starting can transforms
 redStart = transl(r);
@@ -14,7 +14,7 @@ greenStart = transl(g);
 blueStart = transl(b);
 
 % Transforms for Robot Use
-redPos = transl(r)*troty(pi/2)*trotx(pi/2)*trotz(pi);
+redPos = transl(r)*(troty(pi/2)*trotx(pi/2)*trotz(pi));
 greenPos = transl(g)*troty(pi/2)*trotx(pi/2)*trotz(pi);
 bluePos = transl(b)*troty(pi/2)*trotx(pi/2)*trotz(pi);
 
@@ -63,7 +63,7 @@ steps = 64;
 
 % Red Can Sequence
 
-q1 = robot.model.ikcon(redPos);
+q1 = robot.model.ikunc(redPos);
 qMatrix = jtraj(q0, q1, steps);
 
 for i = 1:steps
@@ -71,7 +71,7 @@ for i = 1:steps
     drawnow();
 end
 
-q2 = robot.model.ikcon(redGoalPose);
+q2 = robot.model.ikunc(redGoalPose);
 qMatrix = jtraj(q1, q2, steps);
 
 for i = 1:steps
@@ -91,7 +91,7 @@ end
 
 % Green Can Sequence
 
-q3 = robot.model.ikcon(greenPos);
+q3 = robot.model.ikunc(greenPos);
 qMatrix = jtraj(q0, q3, steps);
 
 for i = 1:steps
@@ -99,7 +99,7 @@ for i = 1:steps
     drawnow();
 end
 
-q4 = robot.model.ikcon(greenGoalPose);
+q4 = robot.model.ikunc(greenGoalPose);
 qMatrix = jtraj(q3, q4, steps);
 
 for i = 1:steps
@@ -119,7 +119,7 @@ end
 
 % Blue Can Sequence
 
-q5 = robot.model.ikcon(bluePos);
+q5 = robot.model.ikunc(bluePos);
 qMatrix = jtraj(q0,q5,steps);
 
 for i = 1:steps
@@ -127,7 +127,7 @@ for i = 1:steps
     drawnow();
 end
 
-q6 = robot.model.ikcon(blueGoalPose);
+q6 = robot.model.ikunc(blueGoalPose);
 qMatrix = jtraj(q5, q6, steps);
 
 for i = 1:steps

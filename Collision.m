@@ -1,32 +1,32 @@
 classdef Collision < handle
     
     properties
-
+        
         % Table collision box
         tableC = [0 0 0.55];
         tableS = [2 1.5 1.1];
         
         % Shelf1
-        shelf1C = [0.7 0 1.1585];
-        shelf1S = [0.2 0.8 0.02];
+        shelf1C = [0 -.7 1.4];
+        shelf1S = [0.8 0.2 0.02];
         
         % Shelf2
-        shelf2C = [0.7 0 1.4255];
-        shelf2S = [0.2 0.8 0.02];
+        shelf2C = [0 -.7 1.4255];
+        shelf2S = [0.8 0.2 0.02];
         
         % Shelf3
-        shelf3C = [0.7 0 1.6925];
-        shelf3S = [0.2 0.8 0.02];
+        shelf3C = [0 -.7 1.6925];
+        shelf3S = [0.8 0.2 0.02];
         
         % Shelf4
-        shelf4C = [0.7 0 1.9595];
-        shelf4S = [0.2 0.8 0.02];
+        shelf4C = [0 -.7 1.9595];
+        shelf4S = [0.8 0.2 0.02];
         
         % Shelf5
-        shelf5C = [0.7 0 2.2265];
-        shelf5S = [0.2 0.8 0.02];
+        shelf5C = [0 -.7 2.2265];
+        shelf5S = [0.8 0.2 0.02];
         
-        plot = true;
+        plot = false;
         
     end
     

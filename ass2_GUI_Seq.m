@@ -1069,7 +1069,7 @@ for faceIndex1 = 1:size(faces1,1)
     [intersects1,check]=LinePlaneIntersection(Normal1(faceIndex1,:),vertOnPlane1,Start,End);
     if check == 1 && IsIntersectionPointInsideTriangle(intersects1,vertex1(faces1(faceIndex1,:)',:))
         disp('Unauthorized person on the area')
-       % uiwait;
+        uiwait;
     end
 end
 % Hints: get(hObject,'Value') returns position of slider

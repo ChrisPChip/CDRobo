@@ -8,9 +8,9 @@ classdef Environment < handle
         floor = [0 0 0];
         wall = [0 2 0];
         mirror = [2 0 0];
-        shelf = [0 -0.75 1.078];
+        shelf = [0 -0.95 1.078];
         ext = [-1.6 1.8 0];
-        tray = [-0.5 0 1.078];
+        tray = [-0.9 0 1.078];
         estop = [-1 0.5 1.078];
         
         %% 3D model parameters

@@ -22,7 +22,7 @@ function varargout = ass2_GUI_Seq(varargin)
 
 % Edit the above text to modify the response to help ass2_GUI_Seq
 
-% Last Modified by GUIDE v2.5 21-Oct-2020 15:05:55
+% Last Modified by GUIDE v2.5 21-Oct-2020 16:06:49
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -920,3 +920,169 @@ function ResumePB_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 uiresume;
+
+
+% --- Executes on button press in SimulateSafetyPB.
+function SimulateSafetyPB_Callback(hObject, eventdata, handles)
+% hObject    handle to Safety (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+[f,v,data] = plyread('stop_sign.ply','tri');
+vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue] / 255;
+stopMesh_h = trisurf(f,v(:,1) -1.2,v(:,2), v(:,3) + 1.75 ...
+    ,'FaceVertexCData',vertexColours,'EdgeColor','interp','EdgeLighting','flat');
+
+
+pStar = [ 662 362 362 662; 362 362 662 662];
+P=[-1.2,-1.2,-1.2,-1.2;
+    -0.25,0.25,0.25,-0.25;
+    2,2,1.5,1.5];
+q0 = [0; 0; pi/2; pi/10; 0; pi/4];
+cam = CentralCamera('focal', 0.08, 'pixel', 10e-5, ...
+    'resolution', [1024 1024], 'centre', [512 512],'name','kinova');
+fps = 25;
+lambda = 0.6;
+depth = mean (P(1,:));
+Tc0= handles.model.fkine(q0);
+handles.model.animate(q0');
+drawnow
+cam.T = Tc0;
+% lighting gouraud
+% light
+p = cam.plot(P, 'Tcam', Tc0);
+cam.clf()
+cam.plot(pStar, '*');
+cam.hold(true);
+cam.plot(P, 'Tcam', Tc0, 'o');
+pause(2)
+cam.hold(true);
+cam.plot(P);
+vel_p = [];
+uv_p = [];
+history = [];
+ksteps = 0;
+for i=1:10
+    ksteps = ksteps + 1;
+    
+    % compute the view of the camera
+    uv = cam.plot(P);
+    
+    % compute image plane error as a column
+    e = pStar-uv;   % feature error
+    e = e(:);
+    Zest = [];
+    
+    % compute the Jacobian
+    if isempty(depth)
+        % exact depth from simulation
+        pt = homtrans(inv(Tcam), P);
+        J = cam.visjac_p(uv, pt(3,:) );
+    elseif ~isempty(Zest)
+        J = cam.visjac_p(uv, Zest);
+    else
+        J = cam.visjac_p(uv, depth );
+    end
+    
+    % compute the velocity of camera in camera frame
+    try
+        v = lambda * pinv(J) * e;
+    catch
+        status = -1;
+        return
+    end
+    fprintf('v: %.3f %.3f %.3f %.3f %.3f %.3f\n', v);
+    
+    %compute robot's Jacobian and inverse
+    J2 = handles.model.jacobn(q0);
+    Jinv = pinv(J2);
+    % get joint velocities
+    qp = Jinv*v;
+    
+    
+    %Maximum angular velocity cannot exceed 180 degrees/s
+    ind=find(qp>pi);
+    if ~isempty(ind)
+        qp(ind)=pi;
+    end
+    ind=find(qp<-pi);
+    if ~isempty(ind)
+        qp(ind)=-pi;
+    end
+    
+    %Update joints
+    q = q0 - (1/fps)*qp;
+    handles.model.animate(q');
+    
+    %Get camera location
+    Tc = handles.model.fkine(q);
+    cam.T = Tc;
+    
+    drawnow
+    
+    % update the history variables
+    hist.uv = uv(:);
+    vel = v;
+    hist.vel = vel;
+    hist.e = e;
+    hist.en = norm(e);
+    hist.jcond = cond(J);
+    hist.Tcam = Tc;
+    hist.vel_p = vel;
+    hist.uv_p = uv;
+    hist.qp = qp;
+    hist.q = q;
+    
+    history = [history hist];
+    
+    pause(1/fps)
+    
+    if ~isempty(200) && (ksteps > 200)
+        break;
+    end
+    
+    %update current joint position
+    q0 = q;
+end
+delete(stopMesh_h);
+
+
+% --- Executes on slider movement.
+function PersonObjectSlider_Callback(hObject, eventdata, handles)
+% hObject    handle to PersonObjectSlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+obVal = get(hObject, 'value');
+assignin('base', 'obVal', obVal);
+x = obVal;
+centerpnt1 = [x,0,.4];
+side = 1;
+plotOptions.plotFaces = true;
+[vertex1,faces1,Normal1] = RectangularPrism(centerpnt1-side/2, centerpnt1+side/2,plotOptions);
+% person = [vertex1,faces1,Normal1];
+Start = [-2 -2.5 .5];
+End = [-2 2.5 .5];
+plot3([Start(1),End(1)],[Start(2),End(2)],[Start(3),End(3)],'r');
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+for faceIndex1 = 1:size(faces1,1)
+    vertOnPlane1 = vertex1(faces1(faceIndex1,1)',:);
+    [intersects1,check]=LinePlaneIntersection(Normal1(faceIndex1,:),vertOnPlane1,Start,End);
+    if check == 1 && IsIntersectionPointInsideTriangle(intersects1,vertex1(faces1(faceIndex1,:)',:))
+        disp('Unauthorized person on the area')
+       % uiwait;
+    end
+end
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+
+% --- Executes during object creation, after setting all properties.
+function PersonObjectSlider_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to PersonObjectSlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end

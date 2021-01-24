@@ -1,0 +1,147 @@
+clear;
+close all;
+clc;
+
+%% Create Envirnoment
+workspace = [0.5 2 -0.5 2 0 3];
+axis equal;
+view(3);
+
+%% Setup Objects
+drumCoord = [1, 0, 0];
+
+% Student number: 1197 1429
+studentID = [1197 1429];
+robotBase = [(studentID(1))/1000 (studentID(2))/1000 1];
+
+%% Show the drum transform
+disp('Drum Transform');
+drumTransform = transl(drumCoord(1), drumCoord(2), drumCoord(3))
+
+% Read drum ply data
+[f,v,data] = plyread('Drum.ply','tri');
+vertexColours = [data.vertex.red, data.vertex.green, data.vertex.blue] / 255;
+floorMesh_h = trisurf(f,v(:,1) + drumCoord(1),v(:,2) + drumCoord(2), v(:,3) + drumCoord(3) ...
+    ,'FaceVertexCData',vertexColours,'EdgeColor','interp','EdgeLighting','flat');
+
+%% Show the robot base transform
+disp('Robot base transform');
+baseTransform = transl(robotBase(1), robotBase(2),1)
+
+% Starting Joint Angles
+q0 = [0 0 0 0 0 0];
+
+% Create Robot
+mdl_puma560
+p560.base = baseTransform;
+
+%% Tool Transform
+toolTransform = transl(0, 0, 0.2) * troty(pi/4);
+p560.tool = toolTransform;
+
+% Plot robot in environment
+p560.plot(q0, 'workspace', workspace, 'scale', 0.3);
+
+%% Show  the transform between the robot base and the drum
+disp('Transform from base to drum');
+b2deltaTransform = inv(baseTransform) * drumTransform
+
+%% Animations
+% Time variables required for graphing
+time = 0.5;
+deltaT = 1/100;
+steps = time / deltaT;
+
+% Move to first corner position
+firstWindowPos = [1.392 0.6495 0.5976];
+firstWindowTrans = transl(firstWindowPos) * troty(-pi/2) * trotz(pi/4) * trotx(-pi/8);
+disp('Moving to first corner');
+q1 = p560.ikcon(firstWindowTrans);
+qMatrix = jtraj(q0, q1, steps);
+p560.plot(qMatrix);
+
+secondWindowPos = [1.228 0.6746 0.5976];
+secondWindowTrans = transl(secondWindowPos) * troty(-pi/2) * trotz(pi/4) * trotx(-pi/8);
+disp('Moving to second corner');
+q2 = p560.ikcon(secondWindowTrans);
+qMatrix = jtraj(q1, q2, steps);
+% p560.plot(qMatrix);   % USED FOR TESTING - REMOVE ONCE COMPLETE
+
+%% Given P560 Values
+% qDot = [8 10 10 5 5 5];
+% q2Dot = [10 12 12 8 8 8];
+tauMax = [97.6 186.4 89.4 24.2 20.1 21.3];
+
+s = lspb(0, 1, steps);
+for i = 1:steps
+    q(i,:) = (1-s(i)) * q1 + s(i) * q2;
+end
+
+qDot = zeros(steps,6);                                                       
+q2Dot = nan(steps,6);                                                        
+tau = nan(steps,6);                                                        
+m = 2.15;                                                               
+p560.payload(m,[0;0;0]);                                                
+J = p560.jacob0(zeros(1,6));
+wieighing = [0 0 -215 0 0 0]';
+for i = 1:steps-1
+    q2Dot(i,:) = (1/deltaT)^2 * (q(i+1,:) - q(i,:) - deltaT*qDot(i,:));                 
+    M = p560.inertia(q(i,:));                                               
+    C = p560.coriolis(q(i,:),qDot(i,:));                                     
+    g = p560.gravload(q(i,:));                                             
+    tau(i,:) = (M*q2Dot(i,:)' + C*qDot(i,:)' + g'+ J'*wieighing)';                     
+    for joint = 1:6
+        if abs(tau(i,joint)) > tauMax(joint)                                       
+            tau(i,joint) = sign(tau(i,joint))*tauMax(joint);                          
+        end
+    end
+          
+    q2Dot(i,:) = (inv(M)*(tau(i,:)' - C*qDot(i,:)' - g'- (J'*wieighing)))';            
+    q(i+1,:) = q(i,:) + deltaT*qDot(i,:) + deltaT^2*q2Dot(i,:);                        
+    qDot(i+1,:) = qDot(i,:) + deltaT*q2Dot(i,:);                                     
+    p560.plot(q(i,:),'trail','r-')
+end
+
+
+instance = 0:deltaT:(steps - 1) * deltaT;   
+% Plot joint angles
+figure
+for joint = 1:6
+    subplot(3,2,joint)
+    plot(instance,q(:,joint)','k','LineWidth',1);
+    refline(0,p560.qlim(joint,1));
+    refline(0,p560.qlim(joint,2));
+    ylabel('Angle (rad)');
+    box off
+end
+
+% Plot joint velocities
+figure
+for joint = 1:6
+    subplot(3,2,joint)
+    plot(instance,qDot(:,joint)*30/pi,'k','LineWidth',1);
+    refline(0,0);
+    ylabel('Velocity (RPM)');
+    box off
+end
+
+% Joint Acceleration
+figure
+for joint = 1:6
+    subplot(3,2,joint)
+    plot(instance,q2Dot(:,joint),'k','LineWidth',1);
+    ylabel('rad/s/s');
+    refline(0,0)
+    box off
+end
+
+% Plot joint torques
+figure(5)
+for joint = 1:6
+    subplot(3,2,joint)
+    plot(instance,tau(:,joint),'k','LineWidth',1);
+    refline(0,tau_max(joint));
+    refline(0,-tau_max(joint));
+    ylabel('J Torque [Nm]');
+    box off
+end
